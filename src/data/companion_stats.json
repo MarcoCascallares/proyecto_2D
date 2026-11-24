@@ -1,0 +1,14 @@
+{
+  "playerMaxHealth": 100,
+  "heal": { "amount": 40, "cooldownSeconds": 12 },
+  "shield": { "hitsAbsorbed": 1, "cooldownSeconds": 8 },
+  "debugDamage": 25,
+  "effectSeconds": 0.5,
+  "follow": {
+    "offsetX": 20,
+    "offsetY": 8,
+    "smoothing": 6,
+    "bobAmplitude": 1.5,
+    "bobHz": 1.2
+  }
+}
