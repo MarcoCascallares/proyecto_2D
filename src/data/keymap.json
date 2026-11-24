@@ -1,0 +1,10 @@
+{
+  "move_left": ["A"],
+  "move_right": ["D"],
+  "jump": ["SPACE"],
+  "dodge": ["SHIFT"],
+  "attack_melee": ["J"],
+  "attack_ranged": ["K"],
+  "ability": ["L"],
+  "heal_companion": ["H"]
+}

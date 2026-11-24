@@ -1,0 +1,16 @@
+{
+  "movement": {
+    "maxSpeed": 90,
+    "acceleration": 700,
+    "braking": 900,
+    "gravity": 900,
+    "jumpVelocity": -280,
+    "jumpCutVelocity": -110,
+    "maxFallSpeed": 400,
+    "airControl": 0.85
+  },
+  "body": {
+    "width": 16,
+    "height": 32
+  }
+}
