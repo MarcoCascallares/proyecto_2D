@@ -1,98 +1,148 @@
 # DOCUMENTO TÉCNICO — PROYECTO LUZ
 
-**Versión:** borrador 0.10 · **Fecha:** 24/11/2026 · **Estado:** v0.1, v0.2 (compañera) y sprite provisional del protagonista probados por el usuario; falta ajustar los valores de prueba y definir lo visual que falta (7.1)
+**Versión:** borrador 0.11 · **Fecha:** 24/11/2026 · **Estado:** v0.1 y v0.2 funcionando y verificadas (`typecheck` en 0, 142 pruebas, build y validador en verde). La compañera pasa a aparecer solo desde la Etapa 2. Escritos los pedidos formales a Gemini para cuatro recursos (0.5). Falta ajustar los valores de prueba y definir el combate (v0.3).
 **Destinatarios:** Claude (programación y lógica) y Gemini (recursos visuales). Lo lee y aprueba el usuario.
-**Deriva de:** *Documento Maestro de Contexto*. Reemplaza a los borradores 0.1 y 0.2.
+**Deriva de:** *Documento Maestro de Contexto*. Reemplaza a los borradores anteriores.
 
 **Etiquetas**
-- **[DECIDIDO]**: viene del Documento Maestro.
+- **[DECIDIDO]**: viene del Documento Maestro o lo cerró el usuario.
 - **[DELEGADO]**: el usuario dejó la decisión en manos de Claude, con criterios que él fijó.
 - **[PROPUESTA]**: necesita aprobación explícita del usuario antes de ser definitiva.
 - **[PENDIENTE]**: decisión del usuario. Ni Claude ni Gemini la toman.
 
 **Cómo usar este documento**
-- **Claude:** secciones 2 a 5, 7 y 8. Es lo que construyo.
-- **Gemini:** secciones 6, 7 y 9. Es lo que producís y cómo lo entregás.
+- **Claude:** secciones 0.1 a 0.4, y 2 a 5, 7 y 8. Es lo que construyo.
+- **Gemini:** sección 0.5, y 6, 7 y 9, más los pedidos formales de `documentation/asset_requests/`. Es lo que producís y cómo lo entregás.
 - **Los dos:** la sección 6 (contrato visual) es el punto de encuentro. Si algo ahí cambia, se cambia en este documento y se avisa a ambos.
-- **Usuario:** sección 0 (en qué fase estamos), sección 10 (qué hay que decidir) y sección 7 (qué avanza sin esperar).
-- **Al retomar en otro chat:** leer primero la sección 0.
+- **Usuario:** sección 0.3 (dónde estamos), sección 10 (qué hay que decidir) y sección 7 (qué avanza sin esperar).
+- **Al retomar en otro chat:** leer primero la sección 0 completa (0.6 dice qué adjuntar).
 
 ---
 
-## 0. ESTADO DEL PROYECTO Y TRASPASO A OTRO CHAT
+## 0. LECTURA RÁPIDA: RESUMEN, REGLAS, FASE ACTUAL Y TRABAJO PENDIENTE
 
-*Actualizá esta sección al final de cada sesión. Es lo primero que debe leer Claude al retomar.*
+*Actualizá esta sección al final de cada sesión. Es lo primero que debe leer Claude al retomar. El detalle técnico está en las secciones 2 a 12.*
 
 **Última actualización:** 24/11/2026
 
-### 0.1 Fase actual
-**v0.1 (movimiento y cámara): FUNCIONANDO.** Compila sin errores (`dist/index.html` de 1,38 MB; 361 KB comprimido) y el usuario confirmó en Brave que "lo hace todo": movimiento, salto, colisiones y cámara. Pendiente solo el ajuste fino de la sensación de control y confirmar el resultado de `npm run typecheck` y `npm test` en su PC.
-El rectángulo provisional cambia de color según el estado (blanco quieto, celeste corriendo, amarillo en el aire) para ver las transiciones hasta que haya sprites; el usuario confirmó que al saltar se vuelve amarillo.
+### 0.1 Resumen del proyecto
 
-**v0.2 (compañera): implementada el 24/11/2026, reconectada al juego en el borrador 0.8 y vista funcionando en dos capturas del usuario (0.9); falta la prueba completa con la checklist.** El diseño se presentó y se aprobó antes de programar (Documento Maestro, sección 15) y se implementó con valores de prueba (ver 8.7). En el entorno de Claude compila y pasa las 134 pruebas, pero la parte de Phaser (HUD, presenter, escena) no se pudo ejecutar: falta que el usuario la pruebe. Una primera captura del usuario (24/11/2026) mostraba el `HUD` (tres barras) y la compañera detrás del protagonista, sobre su silla; la captura posterior, con el sprite, ya no los mostraba porque el repositorio subido no tenía la integración de la v0.2 (0.3). Claude la reconstruyó en el borrador 0.8. Dos capturas del usuario con el patch aplicado (24/11/2026) muestran la compañera sobre su silla detrás del protagonista, el `HUD` con panel y tres filas separadas, el escudo que absorbe el primer golpe (vida 100 → 75 tras el segundo, escudo en recarga de 8 s), la curación que sube la vida a 100 y queda en recarga de 12 s, el escudo que vuelve a "lista" y los contornos celeste y verde alrededor del protagonista.
-**Hoja del protagonista (24/11/2026): integrada como provisional y vista en pantalla (parcialmente).** `assets/final/protagonist.png` (384×256, celdas de 64×64) y `protagonist.json` pasan el validador oficial con 0 errores y 0 avisos. `Preload` carga la hoja y registra las animaciones desde el manifiesto, y `PlayerPresenter` las reproduce (`idle`, `run`, `jump_up`, `fall`); si el manifiesto es inválido vuelve al rectángulo provisional. La hoja es una **conversión hecha por Claude** del arte de Gemini (que llegó como imagen grande, no como PNG exacto), no arte final; detalle en 6.7 y 8.8. Una captura del usuario (24/11/2026) muestra el sprite en el juego: a escala (unos 35 px frente a tiles de 20), con los pies sobre la plataforma y con bordes nítidos. Todavía no se vieron `run`, el salto, la caída ni el espejado.
-Fases siguientes (plan del Documento Maestro): 0.3 Combate → 0.4 Habilidades → 0.5 Entrenamiento → 0.6 Mundo y revelación. Ninguna está empezada.
+**Proyecto Luz** es un juego de plataformas y combate 2D lateral, en pixel art duro, que se abre como una página HTML. El protagonista pelea con **armas de luz forjadas al instante**. La **compañera/antagonista** es la misma persona vista en dos momentos: rival en la Etapa 1 y aliada en la Etapa 2. El mundo de la Etapa 1 es la **percepción** del protagonista; el mundo real, consumido por la oscuridad, se revela más adelante (v0.6).
 
-### 0.2 Qué está hecho
-- Documento técnico 0.3 (este archivo), con el motor elegido, el contrato visual compartido con Gemini y el plan en paralelo.
-- Proyecto `proyecto-luz` completo para la v0.1: movimiento lateral con aceleración y frenado, salto variable, gravedad, colisiones Arcade, cámara con límites, escalado entero, mapa de acciones remapeable (`keymap.json`), nivel de prueba, herramienta F3, rectángulo provisional con `PlayerPresenter`.
-- Lógica pura (`core/`, `logic/`, `data/`): compila sin errores y pasa las pruebas (con un sustituto de Vitest). Simulación de saltos: todas las plataformas del nivel son alcanzables.
-- **Validador de recursos** (sección 6.6): `npm run validate-assets`. Lee PNG de cualquier formato habitual, revisa hoja y manifiesto contra el contrato visual y, opcionalmente, la sincronización del golpe. Incluye una hoja de muestra válida (`npm run make-sample`). 84 pruebas en total; el lector de PNG se comprobó contra archivos reales en 10 formatos (RGBA, RGB, indexado de 2/4/8 bits con transparencia, grises, 16 bits).
-- `README.md` (instalación y uso) y `documentation/checklist_v0.1.md` (lista para probar jugando).
-- Decisiones visuales 1, 2 y 3 cerradas y asentadas en este documento (0.5, 6.1, 6.2, 9 y 10).
-- **v0.2 (compañera), código completo** (detalle en 8.7): seguimiento con silla, vida mínima del protagonista, curación (H), escudo automático, estados y recargas, tecla de depuración T, `HUD` con barras de vida y recargas, y los datos de prueba en `src/data/companion_stats.json`. 50 pruebas nuevas (134 en total, con un sustituto de Vitest) y `documentation/checklist_v0.2.md`.
-- Pedido formal de `protagonist.png` para Gemini, autocontenido: `documentation/asset_requests/request_protagonist_v0.1.md`.
-- **Hoja del protagonista y su integración** (8.8): `assets/final/protagonist.png` + `protagonist.json`, `src/logic/assets/PlayerAnimation.ts` (elección de animación y rango de cuadros, lógica pura), `Preload.ts` y `PlayerPresenter.ts` actualizados, `src/vite-env.d.ts`. 8 pruebas nuevas, entre ellas una que valida la hoja real: **142 pruebas en total** (134 + 8), ejecutadas con un sustituto de Vitest.
-- **v0.2 reconectada (0.8):** `GameEvents` con los eventos de salud y compañera, acción `debug_damage` (T) en `actions.ts` y `keymap.json`, `Level` (crea la vida, el `SupportSystem`, la `Companion` y su presenter, lanza el `HUD`, pasa H y T), `main` (registra el `HUD`), `DebugOverlay` (F3 suma tres líneas) y `HUD` corregido (filas separadas, panel de fondo). `npm run typecheck` da 0 errores con los tipos reales de Phaser y pasan las 142 pruebas (sustituto de Vitest).
-- **Verificado en pantalla por el usuario (0.9):** que el juego arranca con la v0.2 reconectada y que T, H, el escudo, sus recargas, el `HUD` y los contornos se comportan como en 8.7 (criterios 2, 3 y 4, y parte del 5).
+| Tema | Valor |
+|---|---|
+| Motor y herramientas | Phaser 4.2.1 (física Arcade), TypeScript estricto, Vite, Vitest [DELEGADO] |
+| Entrega | Un único `index.html` (se abre `dist\index.html`, no el de la raíz). Brave en Windows es el único entorno probado |
+| Resolución interna | **320 × 180**, escalado entero, `pixelArt` |
+| Escala | **1 m ≈ 20 px** |
+| Tiles | **20 × 20** (16 × 9 visibles exactos) |
+| Personajes | Protagonista ~36 px (1,80 m). Compañera/antagonista ~34 px (1,70 m). Celdas de hoja de 64 × 64 |
+| Dirección artística | **Steampunk + LoL** en pixel art duro, con paletas vivas y fuerte juego de luces y sombras. **Etapa 1:** violetas y magentas vivos, contraste luz/sombra, bordes iluminados. **Etapa 2:** oscuridad densa con focos luminosos intensos, sin explicar el origen de la sombra |
+| Estilo de los personajes | Estilo Genshin Impact, para seres muy poderosos: protagonista en blanco y dorado. Compañera con dos apariencias: rojo y negro (corrupción, sin estética demoníaca) y blanco y dorado (cuando él la reconoce) |
+| Movimiento y entrada | Paso fijo de 60 Hz, salto variable sin *coyote time* ni *jump buffer*, mapa de acciones remapeable |
 
-### 0.3 Qué NO está verificado
-- **Hoja del protagonista: verificada por el usuario.** Las capturas del 24/11/2026 mostraron el build, la escala, los pies y la nitidez; después el usuario informó que los puntos que faltaban (`run`, salto, caída y espejado) quedaron resueltos, sin detalle. Sigue pendiente la calidad del arte (ruido de píxeles, 0.3 más abajo). Claude no puede ejecutar Phaser ni `vite build` en su entorno (los `node_modules` del zip son de Windows y sus binarios de esbuild no corren en Linux).
-- **Calidad de la hoja:** es una reducción del arte original (≈245 px de alto por cuerpo) a 36 px, con una sola escala y una paleta de 15 colores tomada del arte original. Se pierde detalle (emblema de la capa, mechones). Cada cuadro se centró por el ancho total de la figura, así que la capa al viento puede mover al personaje unos píxeles entre cuadros. La ropa casi negra contrasta poco con los violetas de la Etapa 1. Una hoja dibujada nativamente a 36 px reemplazaría a esta sin tocar código (solo `assets/final/`).
-- **Integración de la v0.2 reconstruida por Claude (0.8): verificada por el usuario.** El repositorio subido el 24/11/2026 (commit `fa7b622`) tenía los archivos nuevos de la v0.2 pero no las modificaciones a archivos existentes, y `typecheck` daba 20 errores; Claude las reescribió (8.7). Las capturas confirmaron que anda y después el usuario informó que todos los puntos pendientes de la prueba (F3, cambio de lado de la compañera, caída al vacío, H con la vida completa, recarga del escudo, `typecheck` y `npm test`) quedaron resueltos, sin detalle ni capturas. Falta saber cómo se sienten los valores de prueba (sin comentarios todavía). Hay que confirmar que todo esté subido a GitHub (`git add -A`).
-- La sensación de control (velocidad, altura de salto, gravedad, frenado): solo la puede evaluar el usuario jugando. Los valores de `src/data/player_stats.json` siguen siendo provisionales hasta que dé su opinión.
-- Salida de `npm run typecheck` y `npm test` en la PC del usuario (no se reportó todavía).
-- Brave en Windows es el único entorno probado. Otros navegadores y Safari/iOS no.
-- La v0.2 (compañera) no está probada por el usuario. En el entorno de Claude solo se verificó la lógica pura y el chequeo de tipos con Phaser tipado como `any`, así que no se comprobaron las llamadas a la API de Phaser en `HUD`, `CompanionPresenter` y `Level`. Sus valores de balance son de prueba y la decisión 12 sigue abierta.
-- **`HUD` (0.9): corregido y legible, con detalles estéticos.** Las capturas muestran las tres filas separadas, el panel de fondo y los textos "lista", "8 s" y "12 s" legibles. Detalles que se ven: la letra de 8 px en negrita pega los trazos en "CURA" y "ESCUDO" (se leen, pero ásperas) y los marcos de las barras se dibujan con un borde doble desplazado. Opciones, si molestan: quitar la negrita o subir el tamaño de letra en `src/game/scenes/HUD.ts`, y un contorno de 1 px que no se desfase. Es una decisión estética del usuario.
-- **Calidad visual del sprite en pantalla (0.9):** a este aumento se ve ruido de píxeles sueltos oscuros en la ropa y en la capa. Viene de reducir el arte a 36 px con una paleta de 15 colores (6.7), no de un error de código. La solución es la versión nativa a 36 px, que reemplaza la hoja sin tocar código.
-- Interpretación de Claude a confirmar con el usuario: "escudo activo" se muestra solo medio segundo después de absorber un golpe (`effectSeconds`, 0,5 s, valor visual); igual "curando" tras curar. Ver 8.7.
-- Resuelto: la parte de Phaser (`game/`, `view/`, `main.ts`) se escribió sin poder ejecutar Phaser, pero compiló a la primera con Phaser 4.2.1 y se ve y se mueve bien. El plan de bajar a Phaser 3.x ya no hace falta.
-- Aviso para quien lo pruebe: se abre `dist\index.html` (el compilado), no el `index.html` de la raíz, que es el fuente y se ve en negro si se abre con doble clic.
+**Decisiones cerradas** (el detalle y la lista de pendientes están en la sección 10):
 
-### 0.4 Próximo paso inmediato
-1. El usuario da su opinión sobre la sensación de control (velocidad, salto, gravedad, frenado) y Claude ajusta `player_stats.json`.
-2. **Ajustar los valores.** El usuario cuenta cómo se sienten la curación (+40, 12 s), el escudo (1 golpe, 8 s) y la distancia de la compañera, y Claude ajusta `companion_stats.json` y `player_stats.json`. En paralelo, definir lo visual que falta para Gemini (7.1).
-3. **Subir todo a GitHub** después de aplicar los patches (`git add -A`, commit y push): el commit del 24/11 solo tenía los archivos nuevos (ver 0.3).
-4. Gemini (opcional): versión nativa del protagonista a 36 px (6.7). Claude puede escribir el pedido formal de `companion.png` cuando el usuario quiera; falta definir cómo se entregan las dos apariencias (hojas separadas o filas, 6.2).
-5. El usuario cierra la decisión 12 (balance) cuando quiera; hasta entonces rigen los valores de prueba.
-6. Claude presenta el diseño de la **v0.3 (combate)** y espera aprobación (Documento Maestro, sección 15).
+| Decisión | Contenido | Fecha |
+|---|---|---|
+| 1. Poderes del protagonista | Armas de luz forjadas al instante (hojas, filos o arcos de luz pura), con lectura clara al estilo del combate de LoL | 24/11/2026 |
+| 2. Diseño físico | Estilo Genshin Impact, blanco y dorado; la compañera con dos apariencias (arriba) | 24/11/2026 |
+| 3. Paletas y dirección artística | Steampunk con LoL; Etapa 1 Opción A, Etapa 2 Opción B | 24/11/2026 |
+| 4. Resolución y dimensiones | 320 × 180; personajes ~36 px en celda de 64 × 64; 1 m ≈ 20 px; tiles de 20 × 20 | 23/11/2026 |
+| Técnicas | Motor Phaser 4.2.1; salto variable (D); medidas del contrato (I); hoja provisional del protagonista aceptada si pasa el validador (M) | 23 y 24/11/2026 |
+| Reglas de entrega de Gemini | No se modifica el contrato visual ni la escala para acomodar un recurso; una hoja se acepta como versión inicial si pasa el validador oficial sin errores | 24/11/2026 |
 
-### 0.5 Decisiones del usuario
-- **Cerradas el 23/11/2026:** decisión 4 (320×180; personajes ~36 px en celda de 64×64; 1 m ≈ 20 px; tiles de 20×20); salto variable sin coyote time ni buffer; motor delegado a Claude (Phaser 4.2.1); el usuario instala los paquetes y compila en su PC.
-- **Cerradas el 24/11/2026 (decisiones visuales):**
-  - **Decisión 1 (poderes del protagonista):** armas de luz forjadas al instante (hojas, filos o arcos de luz pura), con lectura clara al estilo del combate de LoL.
-  - **Decisión 2 (diseño físico):** atuendos estilizados estilo Genshin Impact en blanco y dorado, para seres muy poderosos. Protagonista ~36 px y cuerpo de la compañera/antagonista ~34 px, en celdas de 64×64, con 1 m ≈ 20 px. La compañera/antagonista tiene dos apariencias: una en rojo y negro, que representa corrupción (sin estética demoníaca), y otra en blanco y dorado, más parecida al protagonista, para cuando él la reconoce.
-  - **Decisión 3 (paletas y dirección artística):** mezcla de steampunk con LoL en pixel art duro (320×180), con paletas vivas y fuerte juego de luces y sombras para que el personaje destaque siempre sobre el fondo. Etapa 1: Opción A (violetas y magentas vivos, contraste luz/sombra y bordes iluminados). Etapa 2: Opción B (oscuridad densa con focos luminosos intensos, sin explicar el origen de la sombra).
-- **Aprobado el 24/11/2026:** el diseño de la v0.2 con valores de prueba (8.7); ya implementada.
-- **Reglas fijadas el 24/11/2026 para las entregas de Gemini:** no se modifica el contrato visual ni la escala del mundo para acomodar un recurso; una hoja se acepta como versión inicial si pasa el validador oficial sin errores. Con ese criterio Claude aceptó la hoja provisional del protagonista (10.2, fila M); el usuario puede revertirlo.
-- **Pendientes que más desbloquean ahora:** 12 (balance; la v0.2 usa valores de prueba) y 6 (enemigos, para la v0.3).
-- **Pendientes técnicas:** G (pendientes y rampas, antes de la v0.5) y H (soporte de mando).
+**Pendientes que más desbloquean ahora:** 12 (balance, que se divide en dos: 10.1) y 6 (enemigos, para la v0.3). Técnicas: G (pendientes y rampas, antes de la v0.5) y H (soporte de mando).
+
+### 0.2 Reglas de oro
+
+1. **Los cambios a este documento se entregan como archivo `.patch`** contra `documentation/technical_design.md`. El usuario pega el texto de la sesión y Claude actualiza el documento para los futuros chats.
+2. **Gemini entrega siempre cada hoja con su `.json`** (mismo nombre, misma carpeta) y cumple el contrato visual (sección 6) y el validador (6.6). Nada se integra si el validador da errores ni sin aprobación del usuario.
+3. **Gemini define cómo se ve; Claude define cómo funciona.** Claude no decide ningún pendiente (10.1) sin aprobación del usuario. Gemini puede proponer, no fijar.
+4. **No se cambia el contrato visual ni la escala del mundo para acomodar un recurso.** Si un recurso no encaja, se corrige el recurso.
+5. **La compañera/antagonista aparece primero como rival/enemiga en la Etapa 1** (apariencia rojo y negro) y **entra como compañera/aliada en la Etapa 2**, con su silla de luz (apariencia blanco y dorado). En la Etapa 1 no existen su curación (H), su escudo ni sus barras. El código la activa por nivel con `companionEnabled` (8.7).
+6. **Lógica y presentación separadas.** Cambiar un sprite o una animación no obliga a tocar movimiento, combate ni habilidades.
+7. **Entregas pequeñas que siempre se pueden ejecutar.** Cada versión se presenta y se aprueba antes de programarse (sección 15 del Documento Maestro).
+8. **Lo no verificado se dice como no verificado.** Claude no puede ejecutar Phaser ni ver la pantalla; la sensación de juego y lo visual los confirma el usuario.
+
+### 0.3 Fase actual
+
+**v0.1 (movimiento y cámara): funcionando.** El usuario confirmó en Brave movimiento, salto, colisiones y cámara.
+**Sprite del protagonista: aprobado en pantalla** como versión provisional (conversión hecha por Claude del arte de Gemini; 6.7 y 8.8). El usuario confirmó `run`, salto, caída y espejado.
+**v0.2 (compañera): integrada y probada.** Seguimiento con silla, vida mínima del protagonista, curación (H), escudo automático, estados y recargas, tecla de depuración T y `HUD` con barras (8.7). El usuario confirmó en pantalla el seguimiento, el escudo, la curación y el `HUD`.
+
+**Revisión del repositorio (24/11/2026, commit `35fdb37` «changes_2»):** Claude clonó `https://github.com/MarcoCascallares/proyecto_2D` y corrió todo.
+
+| Comprobación | Resultado |
+|---|---|
+| `npm run typecheck` | 0 errores |
+| `npm test` (Vitest real) | **142 pruebas pasan** (12 archivos) |
+| `npm run build` | Compila: `dist/index.html` de 1,41 MB (382 KB comprimido) |
+| `npm run validate-assets` | `protagonist.json`: 0 errores y 0 avisos |
+| Integración de la v0.2 en GitHub | Completa (`Level`, `main`, `actions`, `keymap`, `GameEvents`, `HUD`). El problema del commit `fa7b622` está resuelto |
+
+**Aparición por etapa: cambio de diseño del 24/11/2026.** Hoy el código muestra a la compañera en todos los niveles, porque la v0.2 se hizo para probarla. Con la regla 5, `companionEnabled` (por nivel) ocultará compañera, curación, escudo y sus barras en la Etapa 1. Hasta que se implemente (0.4, fase B), el nivel de prueba la muestra siempre.
+
+**Pendiente de verificar o de decidir**
+- **Sensación de control** (velocidad, salto, gravedad, frenado) y **valores de la compañera** (curación +40 con recarga de 12 s, escudo de 1 golpe con recarga de 8 s, distancia detrás del protagonista): solo los puede evaluar el usuario jugando. Los valores de `player_stats.json` y `companion_stats.json` siguen siendo provisionales.
+- **Hoja nativa a 36 px del protagonista:** el usuario indicó que ya está implementada, pero en GitHub (`35fdb37`) sigue la conversión de 15 colores y celdas de 64 × 64. Falta subirla (`git add -A`, commit y push) o confirmar cuál es la versión vigente. No requiere cambios de código: solo reemplaza `assets/final/protagonist.png` y `.json`.
+- **Calidad visual (24/11/2026):** a este aumento la conversión muestra ruido de píxeles oscuros en la ropa y la capa, y la ropa casi negra contrasta poco con los violetas de la Etapa 1 (6.7). En el `HUD`, la letra de 8 px en negrita pega los trazos y los marcos de las barras se dibujan con borde doble; es una decisión estética del usuario (`src/game/scenes/HUD.ts`).
+- **«Escudo activo» y «curando»** se muestran medio segundo (`effectSeconds`, 0,5 s) tras absorber un golpe o curar. Es interpretación de Claude, a confirmar con el usuario.
+- **Entornos:** solo se probó Brave en Windows. Otros navegadores y Safari/iOS no.
+
+### 0.4 Fases a completar para Claude
+
+| Fase | Qué incluye | Depende de | Estado |
+|---|---|---|---|
+| **A. Ajustes de control y balance** | Cambiar `player_stats.json` y `companion_stats.json` según lo que cuente el usuario. Decisión 12 dividida en dos: Etapa 1 (solo protagonista: vida, daño, energía) y Etapa 2 (con compañera: curación y escudo) | Opinión del usuario jugando | Esperando al usuario |
+| **B. `companionEnabled` por nivel** | Campo en los datos de nivel. En `false`: sin compañera, presenter, curación, escudo ni sus barras; H no hace nada; el daño llega directo a la vida. `level_test.json` en `true`. Detalle en 8.7 | Aprobación de 10.2, fila N | Por hacer |
+| **C. Validador ampliado** | Tipos de recurso «efecto» (`fx_*`: sin avisos de pies ni de nombre) y «tileset» (piezas de 20 × 20, existencia, repetición sin costura). Nombres nuevos de 6.5. Detalle en 6.8 | Antes de la primera entrega de Gemini | Por hacer |
+| **D. v0.3 Combate** | Ataques cuerpo a cuerpo (combo de tres), ataque a distancia, daño, esquiva y recibir golpe; `AttackData`; **dos enemigos provisionales de prueba**: uno cuerpo a cuerpo que patrulla y uno a distancia que dispara, ambos rectángulos de color y descartables. El protagonista pelea solo (sin compañera) | Aprobación del diseño (se presenta antes de programar) y de 10.2, fila Q | Por diseñar |
+| **E. v0.4 Habilidades** | Energía, habilidades y combinaciones | v0.3; qué habilidades existen (pendiente del usuario) | No empezada |
+| **F. v0.5 Entrenamiento** | Escenario, enfrentamiento con la compañera (en la Etapa 1 es la enemiga), derrota e inconsciencia | Decisiones 7, 11 y 12; pendiente G | No empezada |
+| **G. v0.6 Mundo y revelación** | Anomalías, transición, corrupción y cambio de escenario | Decisión 8 | No empezada |
+
+**Pedidos formales por escribir** (cuando el usuario apruebe el diseño correspondiente): ampliación de `protagonist.png` con `attack_1` a `attack_3`, `ranged`, `dodge`, `hurt` y `defeated` (v0.3); compañera en blanco y dorado con su silla de luz y la animación de curación (Etapa 2).
+
+### 0.5 Fases a completar para Gemini
+
+Los cuatro pedidos formales están escritos, son autocontenidos y están en `documentation/asset_requests/`. El orden es una **[PROPUESTA]** según lo que desbloquea cada uno:
+
+| Prioridad | Recurso | Pedido | Medidas | Para qué fase |
+|---|---|---|---|---|
+| 1 | **Armas de luz:** `fx_light_slash.png` (tres golpes del combo) y `fx_light_shot.png` (proyectil e impacto) | `request_fx_light_weapons_v0.3.md` | Tajos: celda 96 × 64, pivote (48, 64). Proyectil: celda 32 × 32, pivote (16, 16) | v0.3 combate |
+| 2 | **Escenario de la Etapa 1:** `tiles_stage1.png` (suelos, paredes, plataformas) y, opcional, `props_stage1.png` (decorado) | `request_tiles_etapa1.md` | Piezas de 20 × 20 sobre violetas y magentas | Niveles de la Etapa 1 (v0.3 en adelante) |
+| 3 | **Compañera corrupta:** `companion_corrupt.png` (rojo y negro, de pie, sin silla) | `request_companion_corrupt_etapa1.md` | Celda 64 × 64, cuerpo ~34 px, pivote (32, 64) | v0.5 entrenamiento |
+| 4 | **Escudo:** `fx_shield.png` | `request_fx_shield_etapa2.md` | Celda 64 × 64, pivote (32, 64), animación `absorb` de 0,5 s | Etapa 2 (v0.2 ya lo usa provisional) |
+
+**Aún no pedido** (se pide cuando corresponda): animaciones de combate del protagonista; compañera en blanco y dorado, silla de luz y efecto de curación; diseños de enemigos y jefes (decisiones 6 y 7); fondos con profundidad; sprites de interfaz; versión nativa del protagonista a 36 px (opcional).
+
+**Cómo entregar** (6.6 y 6.7): PNG con alfa 0 o 255, celdas exactas, una animación por fila, mirando a la derecha, más el `.json` con el mismo nombre. Si Gemini no puede exportar un PNG exacto, entrega los cuadros dibujados en una cuadrícula lógica ampliada por un factor entero, sin suavizar y sobre fondo transparente; Claude convierte, valida e integra como versión inicial. Cada entrega lleva su paleta en hexadecimal y una imagen de referencia que no se integra.
 
 ### 0.6 Cómo retomar en otro chat
-Adjuntar: (1) este documento, (2) el Documento Maestro de Contexto, (3) el zip del proyecto o `src/` si cambió, y (4) lo que haya devuelto el usuario (errores, checklist). Después decir en una línea qué se quiere hacer.
+Adjuntar: (1) este documento, (2) el Documento Maestro de Contexto, (3) el repositorio o el zip del proyecto si cambió y (4) lo que haya devuelto el usuario (errores, checklist). Después decir en una línea qué se quiere hacer.
 
-Claude no puede leer GitHub (bloquea el acceso automático) ni descargar repositorios: hay que subir el ZIP (en GitHub, **Code → Download ZIP**). Conviene subirlo **sin `node_modules` ni `dist`**: los `node_modules` de Windows no corren en el entorno de Claude (esbuild de win32), y por eso allí `tsx` y `vitest` no funcionan. Claude compila con `tsc`, ejecuta el validador con node y corre las pruebas con un sustituto de Vitest. Los archivos de la v0.2 llegaron con saltos de línea CRLF y el resto con LF; los patches están en LF (si `git apply` protesta por espacios, usar `--ignore-whitespace`). Después de aplicar un patch conviene hacer commit de **todo** (`git add -A`): en la sesión del 24/11 el commit solo tenía los archivos nuevos y por eso faltaba la integración de la v0.2.
+**Repositorio:** https://github.com/MarcoCascallares/proyecto_2D. El 24/11/2026 Claude pudo clonarlo con `git clone` desde su entorno (leer la página de GitHub con la herramienta web sigue bloqueado). Si el clon fallara en otra sesión, subir el ZIP (en GitHub, **Code → Download ZIP**), **sin `node_modules` ni `dist`**. Con el clon, `npm ci` instala todo y `typecheck`, `test`, `build` y `validate-assets` corren en el entorno de Claude. Phaser no se puede ejecutar allí: lo visual y la sensación de juego los prueba el usuario.
 
-Repositorio: https://github.com/MarcoCascallares/proyecto_2D
+**Parches:** si `git apply` protesta por espacios, usar `--ignore-whitespace`. Después de aplicar un parche, hacer commit de **todo** (`git add -A`): en la sesión del 24/11 el commit solo tenía los archivos nuevos y por eso faltaba la integración de la v0.2.
 
-Datos para Claude: el usuario escribe en español rioplatense y quiere que se responda siempre en español, directo y sin relleno. Los cambios a este documento se entregan como archivo `.patch`: el usuario pega el texto de la sesión y Claude actualiza el documento para los futuros chats. Prueba en el navegador Brave. Reparto fijo: Claude programa y define cómo funciona; Gemini produce los recursos visuales y define cómo se ven; ChatGPT coordina. Claude no decide ninguna de las decisiones pendientes del Documento Maestro (sección 10.1) sin aprobación.
+**Datos para Claude:** el usuario escribe en español rioplatense y quiere que se responda siempre en español, directo y sin relleno. Prueba en el navegador Brave. Reparto fijo: Claude programa y define cómo funciona; Gemini produce los recursos visuales y define cómo se ven; ChatGPT coordina. Claude no decide ninguna de las decisiones pendientes del Documento Maestro (sección 10.1) sin aprobación.
 
 ---
 
 ## 1. Qué cambió
 
-### 1.0 En el borrador 0.10 (respecto del 0.9)
+### 1.0 En el borrador 0.11 (respecto del 0.10)
+*Las referencias a «0.x» de las entradas más antiguas de esta sección usan la numeración de la sección 0 de esos borradores.*
+1. **Sección 0 reestructurada** en seis bloques: resumen, reglas de oro, fase actual, fases para Claude, fases para Gemini y cómo retomar. Las decisiones del usuario (antes 0.5) pasaron al resumen (0.1).
+2. **Regla nueva: la compañera aparece desde la Etapa 2.** En la Etapa 1 es la enemiga. Se propone `companionEnabled` por nivel (8.7; decisión 10.2, fila N).
+3. **Revisión del repositorio de GitHub** (commit `35fdb37`): `typecheck` en 0, 142 pruebas en Vitest real, build y validador en verde. La integración de la v0.2 está completa.
+4. **Decisión 12 dividida** en Etapa 1 (protagonista solo) y Etapa 2 (con compañera) (10.1).
+5. **Cuatro pedidos formales a Gemini** escritos: armas de luz, escenario de la Etapa 1, compañera corrupta y escudo (0.5, 9.3).
+6. **Formatos nuevos para efectos y tilesets** [PROPUESTA] (nueva sección 6.8) y entrega de las dos apariencias de la compañera en hojas separadas [PROPUESTA] (6.2). Filas N a Q en 10.2.
+7. **Hoja nativa del protagonista:** el usuario dice que está implementada, pero GitHub aún tiene la conversión (0.3).
+
+### 1.0a En el borrador 0.10 (respecto del 0.9)
 1. **Puntos pendientes de prueba resueltos** según el usuario (F3, cambio de lado, caída, H con vida completa, animaciones del sprite, `typecheck` y pruebas), sin detalle.
 2. **Nueva sección 7.1:** qué cubre hoy el contrato visual para que Gemini trabaje en paralelo y qué falta definir.
 
@@ -254,7 +304,7 @@ proyecto-luz/
 
 **Protagonista:** cuerpo Arcade + `StateMachine` (`Idle`, `Run`, `Jump`, `Fall` en 0.1; después `Dodge`, `Attack1-3`, `Hurt`, `Defeated`) + `PlayerStats` en datos + `HealthComponent` y `EnergyComponent` (0.3 y 0.4) + `PlayerPresenter`, la única pieza que conoce sprites y animaciones.
 
-**Compañera:** en la v0.2 no decide por sí sola: la curación la activa el jugador (H) y el escudo es automático, con reglas fijas (`CompanionModel`, `CompanionFollow` y `SupportSystem`, que la une con la vida del protagonista). `Companion` calcula su posición (sin Phaser y sin cuerpo de física) y `CompanionPresenter` la dibuja. `CompanionBrain` queda para cuando haya decisiones "inteligentes y contextuales, no aleatorias", que dependen de criterios de balance (pendiente 12).
+**Compañera:** solo existe en los niveles con `companionEnabled` (8.7): aparece desde la Etapa 2, y en la Etapa 1 es la enemiga. En la v0.2 no decide por sí sola: la curación la activa el jugador (H) y el escudo es automático, con reglas fijas (`CompanionModel`, `CompanionFollow` y `SupportSystem`, que la une con la vida del protagonista). `Companion` calcula su posición (sin Phaser y sin cuerpo de física) y `CompanionPresenter` la dibuja. `CompanionBrain` queda para cuando haya decisiones "inteligentes y contextuales, no aleatorias", que dependen de criterios de balance (pendiente 12).
 
 **Mundo:** cada nivel tiene una capa lógica (colisiones, apariciones, disparadores) y capas visuales intercambiables (`WorldSkin`). Así el mundo percibido (rosas y violetas) y el real (consumido por la oscuridad) comparten geometría. Se implementa en la v0.6, no antes.
 
@@ -282,12 +332,14 @@ Pensadas para 320×180 y para una escala de **1 m ≈ 20 px**, de modo que las a
 | Protagonista | ~36 px de alto | 64 × 64 |
 | Compañera (con silla de luz) | ~34 px de alto el cuerpo | 64 × 64 (la silla puede ser una hoja aparte) |
 | Enemigo robótico estándar | a definir (pendiente 6) | a definir |
-| Efectos (proyectil, impacto, escudo, curación) | según el efecto | 16×16, 32×32 o 64×64, siempre múltiplo de 16 |
-| Tiles de escenario | 20 × 20 (16 columnas × 9 filas visibles exactas) | 20 × 20 |
+| Efectos (proyectil, impacto, escudo, curación) | según el efecto | Múltiplo de 16: 16×16, 32×32, 64×64 o 96×64 (6.8). Escudo: 64×64. Tajos de luz: 96×64. Proyectil de luz: 32×32 |
+| Tiles de escenario | 20 × 20 (16 columnas × 9 filas visibles exactas) | 20 × 20 (formato de tileset en 6.8) |
 
 El usuario eligió tiles de 20 px (16 × 9 tiles visibles exactos).
 
-**Estilo de los personajes [DECIDIDO: decisión 2, 24/11/2026]:** atuendos estilizados estilo Genshin Impact en blanco y dorado, para seres muy poderosos. La compañera/antagonista tiene **dos apariencias**: rojo y negro (corrupción, sin estética demoníaca) y blanco y dorado (más parecida al protagonista, cuando él la reconoce). Cómo se entregan las dos (hojas separadas o filas distintas) todavía no está definido en este contrato.
+**Estilo de los personajes [DECIDIDO: decisión 2, 24/11/2026]:** atuendos estilizados estilo Genshin Impact en blanco y dorado, para seres muy poderosos. La compañera/antagonista tiene **dos apariencias**: rojo y negro (corrupción, sin estética demoníaca) y blanco y dorado (más parecida al protagonista, cuando él la reconoce).
+
+**Entrega de las dos apariencias [PROPUESTA, 24/11/2026]:** una hoja por apariencia, con la misma celda (64 × 64), el mismo pivote (32, 64) y las mismas medidas: `companion_corrupt.png` (rojo y negro, Etapa 1, enemiga, de pie y sin silla) y `companion_light.png` (blanco y dorado, Etapa 2, aliada). La silla de luz va en una hoja aparte (`companion_chair.png`). Motivo: cada apariencia tiene sus propias animaciones y `CompanionPresenter` cambia de hoja por clave sin tocar la lógica. Solo `companion_corrupt.png` está pedida (0.5). Decisión 10.2, fila O.
 
 **Poderes [DECIDIDO: decisión 1, 24/11/2026]:** armas de luz forjadas al instante (hojas, filos o arcos de luz pura), con lectura clara al estilo del combate de LoL.
 
@@ -326,6 +378,7 @@ Resultado: cambiar un sprite no rompe el daño, y los tiempos del trabajo de Gem
 
 ### 6.5 Nombres lógicos de animación (provisionales)
 `idle`, `run`, `jump_up`, `fall`, `attack_1`, `attack_2`, `attack_3`, `ranged`, `dodge`, `hurt`, `defeated`.
+**Efectos (hojas `fx_*`) [PROPUESTA]:** `slash_1`, `slash_2`, `slash_3` (`fx_light_slash`), `fly` y `hit` (`fx_light_shot`), `absorb` (`fx_shield`).
 Cada nombre nuevo se agrega primero a este documento y después a los manifiestos. Si falta una animación, el `Presenter` usa el recurso provisional.
 
 ### 6.6 Entrega y validación
@@ -380,6 +433,24 @@ Gemini genera imágenes raster escaladas, no PNG exactos con alfa píxel a píxe
 
 La imagen original (1536×1024) no está en el repositorio. Si hay que rehacer la conversión, hay que volver a subirla.
 
+### 6.8 Formatos nuevos: efectos y tilesets [PROPUESTA, 24/11/2026]
+Los cuatro pedidos de 0.5 necesitan dos formatos que el contrato de 6.1 a 6.7 no cubría. Hasta que el usuario los apruebe (10.2, fila P) son propuestas.
+
+**Hojas de efectos (`fx_*.png`).** Mismo manifiesto que 6.3 (clave `sheet`), con estas diferencias:
+- **Anclaje:** las hojas que se dibujan sobre el protagonista (escudo, tajos) usan **el mismo punto de anclaje que su sprite**: pies en el borde inferior y centro horizontal. El escudo usa celda 64 × 64 y pivote (32, 64), igual que el protagonista. Los tajos usan celda 96 × 64 y pivote (48, 64): se dibujan como si el protagonista estuviera en x = 48, con el efecto delante. El proyectil usa celda 32 × 32 y pivote en el centro (16, 16).
+- **Sin semitransparencias:** rige `SEMI_ALPHA` también para efectos (pixel art duro, decisión 3). La sensación de brillo o translucidez se logra con tramado o colores claros opacos.
+- **Validador:** un efecto no tiene pies ni usa los nombres de 6.5 de personajes, así que hoy dispararía `PIVOT_FEET` y `ANIM_NAME` (avisos, no bloquean). La fase C de 0.4 agrega el tipo «efecto» (se reconoce por el prefijo `fx_` del archivo) para que no aparezcan.
+
+**Tilesets (`tiles_*.png`, `props_*.png`).** Manifiesto propio, que usa la clave `"tileset"` en vez de `"sheet"`, para que el validador actual lo ignore hasta que se lo extienda:
+```json
+{ "tileset": "tiles_stage1.png", "tileWidth": 20, "tileHeight": 20, "columns": 16,
+  "tiles": { "block_fill": { "col": 4, "row": 0 } } }
+```
+- **Piezas** de 20 × 20. Cada rectángulo sólido de los datos de nivel se arma con: bloque (`block_*`, 9 piezas) si mide 2 × 2 piezas o más; plataforma fina (`plat_*`) si mide 1 de alto; columna (`col_*`) si mide 1 de ancho y 2 o más de alto. Nombres y posiciones en `documentation/asset_requests/request_tiles_etapa1.md`.
+- **Superficie:** la que se pisa es el borde superior de la pieza (y = 0), porque la colisión ocupa la pieza completa.
+- **Validador (fase C):** comprobará transparencia, alfa 0 o 255, hoja múltiplo de 20, piezas declaradas existentes y no vacías, y bordes que se repiten sin costura.
+- `props_*` (decorado no sólido) usa el mismo formato, con piezas de 20 × 20 que apoyan en el borde inferior de la celda.
+
 ---
 
 ## 7. Trabajo en paralelo: qué avanza ya y qué espera
@@ -388,8 +459,8 @@ La imagen original (1536×1024) no está en el repositorio. Si hay que rehacer l
 |---|---|---|---|
 | **Ya, sin esperar nada** | Proyecto base, `PlayerPresenter` provisional y validador de recursos (hechos) | Decisiones 1, 2 y 3 (poderes, diseño físico, paletas): **cerradas el 24/11/2026** | Nada |
 | 0.1 Movimiento y cámara | Movimiento, salto, gravedad, colisiones, cámara; sprite provisional integrado (8.8) | Hoja del protagonista: entregada como arte; Claude la convirtió (6.7). Opcional: versión nativa a 36 px | Nada |
-| 0.2 Compañera | Seguimiento, silla, curación, escudo, estados, recargas (implementada y reconectada al juego en 0.8; a probar, 8.7) | Compañera (dos apariencias), silla, efectos de protección y curación | Decisión 12 (balance): sigue abierta; la v0.2 usa valores de prueba |
-| 0.3 Combate | Ataques, combo de tres, proyectil, daño, esquiva, enemigo robótico | Sprites de ataque, proyectiles, impactos, enemigo | Decisión 6 (la 1 ya está cerrada) |
+| 0.2 Compañera | Seguimiento, silla, curación, escudo, estados, recargas (implementada, integrada y probada; 8.7). Desde la Etapa 2; en la Etapa 1 es la enemiga (`companionEnabled`) | Compañera corrupta (Etapa 1, pedido escrito), compañera blanco y dorado y silla (Etapa 2), escudo (pedido escrito) y curación | Decisión 12 (balance, parte Etapa 2): sigue abierta; la v0.2 usa valores de prueba |
+| 0.3 Combate | Ataques, combo de tres, proyectil, daño, esquiva y dos enemigos provisionales de prueba (0.4, fase D) | Armas de luz y proyectil (pedido escrito), animaciones de ataque del protagonista (por pedir), escenario de la Etapa 1 (pedido escrito) | Decisión 6 solo para el diseño final de enemigos (la 1 ya está cerrada) |
 | 0.4 Habilidades | Energía, habilidades, combinaciones | Efectos de habilidades, luz, escudos | Nada visual (la 1 ya está cerrada) |
 | 0.5 Entrenamiento | Escenario, enfrentamiento con la compañera, derrota e inconsciencia | Recursos del escenario y de la compañera en combate | Decisiones 11 y 12 |
 | 0.6 Mundo y revelación | Anomalías, transición, corrupción, cambio de escenario | Escenarios utópico y real, oscuridad, transición | Decisión 8 |
@@ -400,16 +471,17 @@ La v0.1 se entregó con un rectángulo provisional que cambia de color según el
 ### 7.1 Qué cubre hoy lo visual para que Gemini trabaje en paralelo, y qué falta (24/11/2026)
 Esta lista sale de lo registrado en este documento; el Documento Maestro no estuvo en el chat, así que puede haber más allá. Si el usuario lo adjunta, se compara.
 
-**Cubierto:** contrato de recursos (6.1: PNG, celdas fijas, una animación por fila, pivote, orientación a la derecha); medidas y escala (6.2); manifiesto (6.3); nombres lógicos provisionales (6.5); validador y pedido formal del protagonista (6.6, 9.2); dirección artística (steampunk con LoL en pixel art duro a 320×180; Etapa 1 violetas y magentas, Etapa 2 oscuridad con focos luminosos); estilo de los personajes (blanco y dorado, la compañera con dos apariencias) y poderes (armas de luz). Camino para entregas en imagen grande (6.7).
+**Cubierto:** contrato de recursos (6.1: PNG, celdas fijas, una animación por fila, pivote, orientación a la derecha); medidas y escala (6.2); manifiesto (6.3); nombres lógicos provisionales (6.5); validador y pedido formal del protagonista (6.6, 9.2); dirección artística (steampunk con LoL en pixel art duro a 320×180; Etapa 1 violetas y magentas, Etapa 2 oscuridad con focos luminosos); estilo de los personajes (blanco y dorado, la compañera con dos apariencias) y poderes (armas de luz). Camino para entregas en imagen grande (6.7). **Desde 0.11 también cubierto:** pedidos formales de armas de luz, escenario de la Etapa 1, compañera corrupta y escudo (0.5), con formatos de efectos y tilesets (6.8, a aprobar).
 
 **Falta definir** (sin esto Gemini puede dibujar, pero Claude no puede integrar sin adivinar):
 
 | Qué falta | Detalle | Quién decide |
 |---|---|---|
 | Valores exactos de color | 6.1 solo nombra las familias; el protagonista salió de una paleta tomada del concept art | Usuario, con propuesta de Gemini |
-| Pedido formal de la compañera | No hay `request_companion_v0.2.md`. Falta cómo se entregan las dos apariencias (hojas separadas o filas, 6.2), si la silla es hoja aparte y qué animaciones lleva (reposo sentada, flotar al seguir, curar, proteger) | Claude lo escribe; el usuario aprueba |
-| Efectos de la v0.2 | Escudo y curación hoy son un contorno y un cambio de color de la silla; faltan tamaños, cuadros y fps de los efectos reales | Claude lo escribe; el usuario aprueba |
-| Tiles de la Etapa 1 | Tamaño de tile definido (20×20), pero no hay pedido de tileset, fondos ni capas de profundidad (tamaños para 320×180) | Claude lo escribe; depende en parte de la decisión 11 |
+| Pedido formal de la compañera en blanco y dorado y su silla | Escrito solo el de la apariencia corrupta (`request_companion_corrupt_etapa1.md`). La entrega en hojas separadas es [PROPUESTA] (6.2). Falta el pedido de `companion_light.png` y `companion_chair.png` con sus animaciones (reposo sentada, flotar al seguir, curar, proteger) | Claude lo escribe; el usuario aprueba |
+| Efectos de la v0.2 | Escudo: pedido escrito (`request_fx_shield_etapa2.md`). Falta el efecto de curación; hoy es un cambio de color de la silla y un contorno verde | Claude lo escribe; el usuario aprueba |
+| Escenario de la Etapa 1 | Tileset y decorado: pedido escrito (`request_tiles_etapa1.md`). Faltan fondos y capas de profundidad (tamaños para 320×180) | Claude lo escribe; depende en parte de la decisión 11 |
+| Animaciones de combate del protagonista | `attack_1` a `attack_3`, `ranged`, `dodge`, `hurt` y `defeated` (6.5) no están pedidas; las armas de luz se sincronizan con ellas | Claude lo escribe tras aprobarse el diseño de la v0.3 |
 | Enemigos y jefes | Medidas "a definir" (decisiones 6 y 7) | Usuario |
 | Ataques | La sincronización de golpe (6.4) sigue como propuesta, sin aprobar | Usuario |
 | Interfaz | El `HUD` es provisional; no hay contrato para sprites de interfaz | Claude propone; usuario aprueba |
@@ -519,7 +591,7 @@ Técnicas desde el inicio: atlas (una textura por personaje), *pooling* para pro
 
 ### 8.7 Detalle de la versión 0.2 (compañera)
 
-**Estado:** diseño aprobado el 24/11/2026 e implementada ese día; la integración con el juego se reconstruyó en el borrador 0.8 (el repositorio no la tenía). Pendiente de probar en Brave (`documentation/checklist_v0.2.md`).
+**Estado:** diseño aprobado el 24/11/2026 e implementada ese día; la integración con el juego se reconstruyó en el borrador 0.8 y ya está en GitHub (0.11). Probada por el usuario en Brave (`documentation/checklist_v0.2.md`). **Cambio del 24/11/2026:** la compañera aparece desde la Etapa 2 (abajo).
 
 **Alcance:** la compañera con recursos provisionales (dos rectángulos: uno para ella y otro para la silla de luz). Queda para después (v0.3 y v0.4): interceptar ataques, estabilizar, potenciar y habilidades combinadas.
 
@@ -533,6 +605,14 @@ Técnicas desde el inicio: atlas (una textura por personaje), *pooling* para pro
   - `curando` y `escudo activo`: efecto breve (0,5 s) justo después de curar o de absorber un golpe.
   - `recargando`: alguna de las dos habilidades espera su recarga.
   - La interpretación de "escudo activo" como efecto breve es de Claude; se confirma con el usuario al probar.
+
+**Aparición por etapa: `companionEnabled` [PROPUESTA, 24/11/2026].** La compañera es la enemiga de la Etapa 1 y entra como aliada en la Etapa 2 (0.2, regla 5). La v0.2 se hizo con ella siempre presente, para probarla; se cambia así, sin tirar nada:
+- **Dato:** campo `companionEnabled` (booleano) en los datos de cada nivel (`LevelData`), obligatorio y validado al arrancar. `level_test.json` en `true`; los niveles de la Etapa 1, en `false`.
+- **En `false`:** `Level` no crea la `Companion`, su presenter ni la parte de curación y escudo del `SupportSystem`. La vida del protagonista sigue existiendo y el daño la baja directo. H no hace nada. El `HUD` muestra solo la barra de vida y oculta las filas de curación y escudo.
+- **En `true`:** funciona como en la v0.2.
+- **No cambia:** `Player` no conoce a la compañera; `CompanionModel`, `CompanionFollow` y `HealthModel` no se tocan. La tecla T sigue dañando al protagonista.
+- **Criterios de aceptación:** (1) en un nivel con `false` no hay compañera, ni barras de curación y escudo, ni efecto de H; (2) un golpe de T baja la vida en 25 sin absorción; (3) en un nivel con `true` todo sigue como en los criterios 1 a 6 de más abajo; (4) un nivel sin el campo falla la validación con un mensaje claro; (5) las pruebas del `SupportSystem` cubren el caso sin compañera.
+- **Fuera de alcance:** la enemiga de la Etapa 1 no usa este sistema. Es un enemigo de la v0.5, con su propia lógica.
 
 **Valores de prueba [PROPUESTA: aprobados solo para probar; el balance real es la decisión 12, abierta].** Viven en `src/data/companion_stats.json`, que se cambia sin tocar código. El juego revisa el archivo al arrancar y avisa si algún valor es inválido.
 
@@ -628,10 +708,13 @@ Cada pedido trae: nombre del archivo, tamaño de celda, cantidad de filas y cuad
 > Celda 64×64, pivote (32, 64), mirando a la derecha. Filas: `idle` (4 cuadros, 6 fps, bucle), `run` (6 cuadros, 10 fps, bucle), `jump_up` (2 cuadros, sin bucle), `fall` (2 cuadros, bucle). Más `protagonist.json` según 6.3.
 > Cantidades de cuadros y fps son **sugeridos**; podés proponer otros si el diseño lo pide, y se actualiza el manifiesto.
 
+Pedidos escritos hasta ahora (`documentation/asset_requests/`): `request_protagonist_v0.1.md` (entregado), `request_fx_light_weapons_v0.3.md`, `request_tiles_etapa1.md`, `request_companion_corrupt_etapa1.md` y `request_fx_shield_etapa2.md`. Todos siguen el mismo formato y son autocontenidos.
+
 ### 9.3 Qué podés empezar ya
-Las decisiones 1, 2 y 3 se cerraron el 24/11/2026 (resumen en 0.5, paleta en 6.1, medidas y estilo en 6.2). Ya no hace falta proponer alternativas para ellas: se produce según lo decidido.
+Las decisiones 1, 2 y 3 se cerraron el 24/11/2026 (resumen en 0.1, paleta en 6.1, medidas y estilo en 6.2). Ya no hace falta proponer alternativas para ellas: se produce según lo decidido.
 - **Hoja del protagonista:** entregada como arte y convertida por Claude (6.7, 8.8). Opcional: una versión dibujada nativamente a 36 px, con celdas de 64×64, escala común entre cuadros y pies en el borde inferior, para reemplazar la conversión. Si no podés exportar un PNG con alfa exacto, entregá los cuadros en filas sobre fondo transparente, sin reescalarlos uno por uno.
-- **Después, según la sección 7:** compañera en sus dos apariencias, silla de luz y efectos de protección y curación (v0.2).
+- **Pedidos listos para trabajar (0.5, en este orden sugerido):** (1) armas de luz y proyectil, (2) escenario de la Etapa 1, (3) compañera corrupta, (4) escudo. Los formatos de efectos y tilesets (6.8) son propuesta hasta que el usuario los apruebe, pero no cambian lo que hay que dibujar.
+- **Más adelante, según la sección 7:** compañera en blanco y dorado, silla de luz y efecto de curación (Etapa 2); animaciones de combate del protagonista (v0.3).
 
 Nada se integra al juego hasta que el usuario lo apruebe.
 
@@ -646,9 +729,9 @@ Nada se integra al juego hasta que el usuario lo apruebe.
 ## 10. Decisiones
 
 ### 10.1 Pendientes del Documento Maestro (nadie las toma salvo el usuario)
-1. ~~Manifestación visual de los poderes del protagonista.~~ **Cerrada el 24/11/2026** (armas de luz forjadas al instante; ver 0.5).
-2. ~~Diseño físico definitivo de ambos personajes.~~ **Cerrada el 24/11/2026** (estilo Genshin Impact, blanco y dorado; la compañera con dos apariencias; ver 0.5).
-3. ~~Paletas de colores definitivas.~~ **Cerrada el 24/11/2026** (Etapa 1 Opción A, Etapa 2 Opción B; ver 0.5 y 6.1).
+1. ~~Manifestación visual de los poderes del protagonista.~~ **Cerrada el 24/11/2026** (armas de luz forjadas al instante; ver 0.1).
+2. ~~Diseño físico definitivo de ambos personajes.~~ **Cerrada el 24/11/2026** (estilo Genshin Impact, blanco y dorado; la compañera con dos apariencias; ver 0.1).
+3. ~~Paletas de colores definitivas.~~ **Cerrada el 24/11/2026** (Etapa 1 Opción A, Etapa 2 Opción B; ver 0.1 y 6.1).
 4. ~~Resolución y dimensiones definitivas de sprites.~~ **Cerrada el 23/11/2026** (320×180 y medidas de 6.2).
 5. Sistema de progresión.
 6. Diseño y variedad de enemigos.
@@ -657,9 +740,9 @@ Nada se integra al juego hasta que el usuario lo apruebe.
 9. Historia completa del pasado.
 10. Desenlace definitivo.
 11. Diseño de niveles.
-12. Balance de vida, energía, daño y recargas. (Abierta; la v0.2 usa valores de prueba, ver 8.7.)
+12. Balance de vida, energía, daño y recargas. (Abierta; la v0.2 usa valores de prueba, ver 8.7.) **Dividida el 24/11/2026 en dos partes**, porque la compañera entra recién en la Etapa 2: **12a, Etapa 1** (solo el protagonista: vida, daño, energía; se afina jugando la v0.3) y **12b, Etapa 2** (con compañera: curación, escudo y recargas; hoy +40 con 12 s y 1 golpe con 8 s, de prueba). Alternativas planteadas y no adoptadas: escudo que absorbe una cantidad fija de daño en vez de un golpe, y curación que consume energía.
 
-**Cerradas:** 1, 2, 3 y 4. **Las que más desbloquean ahora:** 12 (balance, con valores de prueba en la v0.2) y, para la v0.3, la 6 (enemigos).
+**Cerradas:** 1, 2, 3 y 4. **Las que más desbloquean ahora:** 12a (balance de la Etapa 1) y, para la v0.3, la 6 (enemigos; para probar el combate alcanzan los dos enemigos provisionales de 10.2, fila Q, que no son el diseño final).
 
 ### 10.2 Técnicas
 | # | Decisión | Estado |
@@ -676,7 +759,11 @@ Nada se integra al juego hasta que el usuario lo apruebe.
 | J | Tolerancia de sincronización de golpe (6.4) | [PROPUESTA] |
 | K | Valores de prueba de la compañera en `companion_stats.json` (8.7) | [PROPUESTA] (aprobados el 24/11/2026 solo para probar; sujetos a la decisión 12) |
 | L | Tecla de depuración T: daño al protagonista, solo desarrollo (8.1) | [PROPUESTA] |
-| M | Hoja del protagonista provisional (conversión de Claude, 8.8) aceptada como versión inicial porque pasa el validador oficial sin errores | [DELEGADO] (criterio fijado por el usuario el 24/11/2026; falta verla en pantalla) |
+| M | Hoja del protagonista provisional (conversión de Claude, 8.8) aceptada como versión inicial porque pasa el validador oficial sin errores | [DELEGADO] (criterio fijado por el usuario el 24/11/2026; vista en pantalla y aprobada) |
+| N | `companionEnabled` por nivel: la compañera, su curación, su escudo y sus barras solo existen donde el nivel lo habilita; aparece desde la Etapa 2 (8.7) | [PROPUESTA] (regla de la Etapa 2 dada por el usuario el 24/11/2026; el mecanismo falta aprobar) |
+| O | Las dos apariencias de la compañera en hojas separadas (`companion_corrupt.png`, `companion_light.png`) y la silla en `companion_chair.png` (6.2) | [PROPUESTA] |
+| P | Formatos de efectos (`fx_*`) y de tilesets (`tiles_*`, `props_*`) y anclajes de 6.8 | [PROPUESTA] |
+| Q | Dos enemigos provisionales de prueba para la v0.3 (cuerpo a cuerpo que patrulla; a distancia que dispara), rectángulos descartables, sin ser el diseño final de la decisión 6 | [PROPUESTA] |
 
 ---
 
@@ -694,6 +781,9 @@ Nada se integra al juego hasta que el usuario lo apruebe.
 | Hoja convertida desde un raster | Pierde detalle a 36 px y la capa puede hacer "bailar" al personaje entre cuadros | Reemplazarla por una hoja nativa a 36 px sin tocar código (6.7) |
 | El repositorio no tenía todos los cambios de la v0.2 | `typecheck` fallaba y el juego no mostraba la compañera | Reconstruido en 0.8; subir todo a GitHub con `git add -A` tras aplicar los patches (0.4) |
 | Phaser no se pudo ejecutar en el entorno de Claude | Errores de integración que no se vieron al escribir la v0.1 | El usuario compila y prueba; los mensajes de error vuelven a Claude |
+| El validador no cubre efectos ni tilesets | Los avisos `PIVOT_FEET` y `ANIM_NAME` en efectos confunden, y los tilesets no tienen ninguna comprobación | Fase C de 0.4 antes de la primera entrega; hasta entonces, revisión manual de Claude (6.8) |
+| La compañera existe en todos los niveles en el código actual | Contradice la regla de la Etapa 2 y confundiría el balance de la Etapa 1 | `companionEnabled` por nivel (8.7, fase B de 0.4) |
+| Los colores de la enemiga (rojo y negro) y del protagonista pueden perderse sobre violetas y magentas | Mala lectura en la Etapa 1 | Los pedidos exigen probarlo y entregar una imagen de referencia sobre el fondo |
 
 ---
 
