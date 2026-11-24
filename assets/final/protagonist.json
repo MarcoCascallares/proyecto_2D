@@ -1,0 +1,36 @@
+{
+  "sheet": "protagonist.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "facing": "right",
+  "pivot": {
+    "x": 32,
+    "y": 64
+  },
+  "animations": {
+    "idle": {
+      "row": 0,
+      "frames": 4,
+      "fps": 6,
+      "loop": true
+    },
+    "run": {
+      "row": 1,
+      "frames": 6,
+      "fps": 10,
+      "loop": true
+    },
+    "jump_up": {
+      "row": 2,
+      "frames": 2,
+      "fps": 8,
+      "loop": false
+    },
+    "fall": {
+      "row": 3,
+      "frames": 2,
+      "fps": 8,
+      "loop": true
+    }
+  }
+}

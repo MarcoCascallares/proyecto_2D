@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH, PHYSICS_FPS } from './config';
 import { Boot } from './game/scenes/Boot';
+import { HUD } from './game/scenes/HUD';
 import { Level } from './game/scenes/Level';
 import { Preload } from './game/scenes/Preload';
 
@@ -27,5 +28,5 @@ new Phaser.Game({
       debug: false,
     },
   },
-  scene: [Boot, Preload, Level],
+  scene: [Boot, Preload, Level, HUD],
 });

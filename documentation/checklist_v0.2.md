@@ -5,9 +5,10 @@ Los valores de curación, escudo y recargas son **de prueba** (decisión 12 abie
 
 ## Arranque
 - [ ] `npm run typecheck` termina sin errores.
-- [ ] `npm test` pasa (deberían ser 134 pruebas).
+- [ ] `npm test` pasa (deberían ser 142 pruebas).
 - [ ] `npm run build` termina sin errores y `dist/index.html` se abre con doble clic.
-- [ ] Arriba a la derecha se ven tres barras: VIDA, CURA (H) y ESCUDO.
+- [ ] Arriba a la derecha se ven tres barras: VIDA, CURA (H) y ESCUDO, sobre un panel oscuro.
+- [ ] Las tres filas no se pisan y los textos se leen (por ejemplo "lista" no se confunde con "liste").
 - [ ] F3 muestra, además de lo de la v0.1, tres líneas: vida, estado de la compañera y recargas.
 
 ## Seguimiento

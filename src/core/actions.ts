@@ -10,6 +10,8 @@ export const ACTION_NAMES = [
   'attack_ranged',
   'ability',
   'heal_companion',
+  /** Solo desarrollo (v0.2): hace daño al protagonista para probar curación y escudo. */
+  'debug_damage',
 ] as const;
 
 export type ActionName = (typeof ACTION_NAMES)[number];

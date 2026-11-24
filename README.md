@@ -64,15 +64,19 @@ npm run validate-assets
 
 Cada problema dice qué es, dónde está (fila, cuadro, píxel) y quién lo corrige. Los `ERROR` bloquean la integración; los `AVISO`, no.
 
+`assets/final/` ya trae la hoja provisional del protagonista (`protagonist.png` + `protagonist.json`) y el juego la usa: `Preload` la carga y `PlayerPresenter` reproduce `idle`, `run`, `jump_up` y `fall`. Para cambiarla por otra versión, reemplazá esos dos archivos, corré `npm run validate-assets` y `npm run build`; no hace falta tocar código. Si el manifiesto no es válido, el juego avisa por consola y vuelve al rectángulo provisional; si borrás los archivos, el build falla.
+
 ## Controles (provisionales, se cambian en `src/data/keymap.json`)
 
 | Acción | Tecla |
 |---|---|
 | Mover | A / D |
 | Saltar (mantené para saltar más alto) | Espacio |
-| Mostrar/ocultar FPS y estado | F3 |
+| Curar con la compañera (recarga de 12 s) | H |
+| Daño de prueba de 25 al protagonista (solo desarrollo) | T |
+| Mostrar/ocultar FPS, estado, vida y compañera | F3 |
 
-Las demás acciones del archivo (esquiva, ataques, habilidad, curación) están reservadas para versiones futuras y todavía no hacen nada.
+Las demás acciones del archivo (esquiva, ataques, habilidad) están reservadas para versiones futuras y todavía no hacen nada.
 
 ## Si algo falla
 

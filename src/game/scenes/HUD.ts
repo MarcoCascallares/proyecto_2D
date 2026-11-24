@@ -14,6 +14,15 @@ const BAR_X = GAME_WIDTH - MARGIN - BAR_WIDTH;
 const LABEL_X = BAR_X - 3;
 const BAR_BACK = 0x14151f;
 const BAR_FRAME = 0x7077a0;
+// Centros verticales de las tres filas: 11-13 px entre una y otra para que el texto
+// de 8 px no se pise (antes estaban a 7 px).
+const ROW_LIFE = 8;
+const ROW_HEAL = 21;
+const ROW_SHIELD = 32;
+// Fondo detrás de las barras y los textos, para leerlos aunque haya una plataforma debajo.
+const PANEL_X = BAR_X - 3 - 72;
+const PANEL_Y = 2;
+const PANEL_HEIGHT = 38;
 
 interface Bar {
   readonly fill: Phaser.GameObjects.Rectangle;
@@ -40,12 +49,16 @@ export class HUD extends Phaser.Scene {
   }
 
   create(): void {
-    this.life = this.makeBar(MARGIN + 4, 6, 0xe05a6a);
-    this.heal = this.makeBar(MARGIN + 13, 4, 0x7be39a);
-    this.shield = this.makeBar(MARGIN + 20, 4, 0x8fd0ff);
+    this.add
+      .rectangle(PANEL_X, PANEL_Y, GAME_WIDTH - 2 - PANEL_X, PANEL_HEIGHT, BAR_BACK, 0.85)
+      .setOrigin(0, 0)
+      .setStrokeStyle(1, BAR_FRAME);
+    this.life = this.makeBar(ROW_LIFE, 6, 0xe05a6a);
+    this.heal = this.makeBar(ROW_HEAL, 4, 0x7be39a);
+    this.shield = this.makeBar(ROW_SHIELD, 4, 0x8fd0ff);
   }
 
-  update(): void {
+  override update(): void {
     const v = this.vitals();
     this.setBar(this.life, v.healthRatio, 1, `VIDA ${Math.ceil(v.health)}/${v.maxHealth}`);
     this.setBar(this.heal, v.healReadyRatio, v.healReadyRatio, `CURA (H) ${cooldownLabel(v.healSeconds)}`);
@@ -59,7 +72,7 @@ export class HUD extends Phaser.Scene {
       .setStrokeStyle(1, BAR_FRAME);
     const fill = this.add.rectangle(BAR_X, centerY, BAR_WIDTH, height, color).setOrigin(0, 0.5);
     const label = this.add
-      .text(LABEL_X, centerY, '', { fontFamily: 'monospace', fontSize: '8px', color: '#ffffff' })
+      .text(LABEL_X, centerY, '', { fontFamily: 'monospace', fontSize: '8px', fontStyle: 'bold', color: '#ffffff' })
       .setOrigin(1, 0.5);
     return { fill, label, lastText: '' };
   }

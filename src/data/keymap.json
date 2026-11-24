@@ -6,5 +6,6 @@
   "attack_melee": ["J"],
   "attack_ranged": ["K"],
   "ability": ["L"],
-  "heal_companion": ["H"]
+  "heal_companion": ["H"],
+  "debug_damage": ["T"]
 }

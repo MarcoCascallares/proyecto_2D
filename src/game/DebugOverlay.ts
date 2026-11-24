@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { COMPANION_STATUS_LABEL, cooldownLabel } from '../logic/companion/CompanionModel';
+import type { Vitals } from './systems/SupportSystem';
 
 export interface DebugInfo {
   state: string;
@@ -6,9 +8,11 @@ export interface DebugInfo {
   vy: number;
   onGround: boolean;
   lastTransition: string;
+  /** Vida y estado de la compañera (v0.2). */
+  support?: Readonly<Vitals>;
 }
 
-/** Herramienta de depuración: F3 muestra u oculta FPS, estado y velocidad. */
+/** Herramienta de depuración: F3 muestra u oculta FPS, estado, velocidad, vida y compañera. */
 export class DebugOverlay {
   private readonly text: Phaser.GameObjects.Text;
   private readonly key: Phaser.Input.Keyboard.Key | null;
@@ -38,11 +42,20 @@ export class DebugOverlay {
     this.wasDown = down;
     if (!this.visible) return;
 
-    this.text.setText([
+    const lines = [
       `FPS ${Math.round(fps)}`,
       `estado ${info.state} (${info.lastTransition})`,
       `vx ${info.vx.toFixed(0)}  vy ${info.vy.toFixed(0)}`,
       `suelo ${info.onGround ? 'si' : 'no'}`,
-    ]);
+    ];
+    const s = info.support;
+    if (s) {
+      lines.push(
+        `vida ${Math.ceil(s.health)}/${s.maxHealth}`,
+        `compañera ${COMPANION_STATUS_LABEL[s.status]}`,
+        `cura ${cooldownLabel(s.healSeconds)}  escudo ${cooldownLabel(s.shieldSeconds)}`,
+      );
+    }
+    this.text.setText(lines);
   }
 }
